@@ -1,6 +1,6 @@
 import React from 'react';
 import { Product } from '../types';
-import { HeartIcon } from './Icons';
+import { HeartIcon, ShareIcon } from './Icons';
 
 interface ProductCardProps {
     product: Product;
@@ -9,9 +9,10 @@ interface ProductCardProps {
     onAddToCart: (product: Product) => void;
     onToggleWishlist: (productId: number) => void;
     isWishlisted: boolean;
+    onShare: (product: Product) => void;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product, onBuyNow, onViewDetails, onAddToCart, onToggleWishlist, isWishlisted }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product, onBuyNow, onViewDetails, onAddToCart, onToggleWishlist, isWishlisted, onShare }) => {
     return (
         <div className="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 transform hover:-translate-y-1 group flex flex-col hover:shadow-xl hover:shadow-sky-100/80">
             <div className="relative">
@@ -52,6 +53,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onBuyNow, onViewDeta
                 <div className="flex justify-between items-center mt-4">
                     <p className="text-lg font-bold text-sky-600">₹{product.price.toFixed(2)}</p>
                     <div className="flex items-center space-x-2">
+                        <button
+                            onClick={() => onShare(product)}
+                            className="p-2 border border-gray-300 text-gray-500 rounded-full hover:bg-gray-100 transition-colors"
+                            aria-label="Share product"
+                         >
+                            <ShareIcon className="w-4 h-4"/>
+                         </button>
                          <button
                             onClick={() => onAddToCart(product)}
                             disabled={product.stock === 0}

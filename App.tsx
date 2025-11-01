@@ -33,6 +33,24 @@ function App() {
   const [isOwnerLoggedIn, setIsOwnerLoggedIn] = useState(false);
   const [currentView, setCurrentView] = useState<'store' | 'ownerLogin' | 'ownerDashboard'>('store');
 
+  const [toastMessage, setToastMessage] = useState<string>('');
+
+  const handleShareProduct = (product: Product) => {
+      const productUrl = `${window.location.origin}?product=${product.id}`;
+      navigator.clipboard.writeText(productUrl).then(() => {
+          setToastMessage('Product link copied to clipboard!');
+          setTimeout(() => {
+              setToastMessage('');
+          }, 3000);
+      }).catch(err => {
+          console.error('Failed to copy text: ', err);
+          setToastMessage('Failed to copy link.');
+           setTimeout(() => {
+              setToastMessage('');
+          }, 3000);
+      });
+  };
+
   const handleBuyNow = (product: Product) => {
     setSelectedProductForDetail(null);
     setIsCartOpen(false);
@@ -231,6 +249,7 @@ function App() {
                     onAddToCart={handleAddToCart}
                     wishlist={wishlist}
                     onToggleWishlist={handleToggleWishlist}
+                    onShare={handleShareProduct}
                   />
                   <div className="container mx-auto px-4 sm:px-6 lg:px-8 my-8">
                         <div className="bg-gradient-to-r from-sky-500 to-blue-600 rounded-xl shadow-lg p-8 text-center text-white">
@@ -250,6 +269,7 @@ function App() {
                     onAddToCart={handleAddToCart}
                     wishlist={wishlist}
                     onToggleWishlist={handleToggleWishlist}
+                    onShare={handleShareProduct}
                   />
                    <ProductList 
                     products={otherProducts.filter(p => 
@@ -262,6 +282,7 @@ function App() {
                     onAddToCart={handleAddToCart}
                     wishlist={wishlist}
                     onToggleWishlist={handleToggleWishlist}
+                    onShare={handleShareProduct}
                   />
               </>
             ) : (
@@ -282,6 +303,7 @@ function App() {
                       onAddToCart={handleAddToCart}
                       wishlist={wishlist}
                       onToggleWishlist={handleToggleWishlist}
+                      onShare={handleShareProduct}
                     />
                 </div>
             )}
@@ -302,6 +324,7 @@ function App() {
             onAddToCart={handleAddToCart}
             onToggleWishlist={handleToggleWishlist}
             isWishlisted={wishlist.includes(selectedProductForDetail.id)}
+            onShare={handleShareProduct}
         />}
       </Modal>
       
@@ -341,6 +364,28 @@ function App() {
               }}
           />
       </Modal>
+
+      {toastMessage && (
+        <div className="fixed bottom-5 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-6 py-2 rounded-full shadow-lg z-[100] animate-toast-in-up">
+            <p>{toastMessage}</p>
+        </div>
+      )}
+
+      <style>{`
+        @keyframes toast-in-up {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, 20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translate(-50%, 0);
+            }
+        }
+        .animate-toast-in-up {
+            animation: toast-in-up 0.3s ease-out forwards;
+        }
+      `}</style>
     </div>
   );
 }

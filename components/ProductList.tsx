@@ -9,11 +9,12 @@ interface ProductListProps {
     onAddToCart: (product: Product) => void;
     wishlist: number[];
     onToggleWishlist: (productId: number) => void;
+    onShare: (product: Product) => void;
     layout?: 'grid' | 'horizontal';
     title?: string;
 }
 
-const ProductList: React.FC<ProductListProps> = ({ products, onBuyNow, onViewDetails, onAddToCart, wishlist, onToggleWishlist, layout = 'grid', title }) => {
+const ProductList: React.FC<ProductListProps> = ({ products, onBuyNow, onViewDetails, onAddToCart, wishlist, onToggleWishlist, onShare, layout = 'grid', title }) => {
     
     if (layout === 'horizontal') {
         return (
@@ -30,6 +31,7 @@ const ProductList: React.FC<ProductListProps> = ({ products, onBuyNow, onViewDet
                                     onAddToCart={onAddToCart} 
                                     onToggleWishlist={onToggleWishlist}
                                     isWishlisted={wishlist.includes(product.id)}
+                                    onShare={onShare}
                                 />
                             </div>
                         ))}
@@ -62,6 +64,7 @@ const ProductList: React.FC<ProductListProps> = ({ products, onBuyNow, onViewDet
                           onAddToCart={onAddToCart} 
                           onToggleWishlist={onToggleWishlist}
                           isWishlisted={wishlist.includes(product.id)}
+                          onShare={onShare}
                       />
                   ))}
               </div>

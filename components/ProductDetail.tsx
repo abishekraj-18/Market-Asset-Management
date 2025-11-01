@@ -1,6 +1,6 @@
 import React from 'react';
 import { Product } from '../types';
-import { HeartIcon } from './Icons';
+import { HeartIcon, ShareIcon } from './Icons';
 
 interface ProductDetailProps {
     product: Product;
@@ -8,9 +8,10 @@ interface ProductDetailProps {
     onAddToCart: (product: Product) => void;
     onToggleWishlist: (productId: number) => void;
     isWishlisted: boolean;
+    onShare: (product: Product) => void;
 }
 
-const ProductDetail: React.FC<ProductDetailProps> = ({ product, onBuyNow, onAddToCart, onToggleWishlist, isWishlisted }) => {
+const ProductDetail: React.FC<ProductDetailProps> = ({ product, onBuyNow, onAddToCart, onToggleWishlist, isWishlisted, onShare }) => {
     return (
         <div className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -45,6 +46,13 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, onBuyNow, onAddT
                     className="flex-grow px-6 py-3 bg-sky-600 text-white font-semibold rounded-lg hover:bg-sky-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
                 >
                     {product.stock > 0 ? 'Buy Now' : 'Out of Stock'}
+                </button>
+                <button
+                    onClick={() => onShare(product)}
+                    className="p-3 border border-gray-300 text-gray-600 rounded-lg hover:border-sky-500 hover:text-sky-500 transition-colors"
+                    aria-label="Share product link"
+                >
+                    <ShareIcon className="w-6 h-6" />
                 </button>
                  <button
                     onClick={() => onToggleWishlist(product.id)}
