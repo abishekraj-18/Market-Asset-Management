@@ -5,6 +5,7 @@ interface CheckoutFormProps {
     product: Product;
     onClose: () => void;
     onPlaceOrder: (order: Omit<Order, 'id' | 'orderDate' | 'status'>) => void;
+    onShowQrCode?: (orderData: Omit<Order, 'id' | 'orderDate' | 'status'>) => void;
 }
 
 // Define InputField as a standalone component outside of CheckoutForm
@@ -32,7 +33,7 @@ const InputField: React.FC<{
     </div>
 );
 
-const CheckoutForm: React.FC<CheckoutFormProps> = ({ product, onClose, onPlaceOrder }) => {
+const CheckoutForm: React.FC<CheckoutFormProps> = ({ product, onClose, onPlaceOrder, onShowQrCode }) => {
     const [quantity, setQuantity] = useState(1);
     const [isShowingQrCode, setIsShowingQrCode] = useState(false);
     const [shippingAddress, setShippingAddress] = useState<ShippingAddress>({
@@ -75,13 +76,29 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ product, onClose, onPlaceOr
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (paymentMethod === PaymentMethod.UPI) {
-            setIsShowingQrCode(true);
+            // Prepare order data
+            const itemToOrder: CartItem = { ...product, quantity };
+            const orderData: Omit<Order, 'id' | 'orderDate' | 'status'> = {
+                customerDetails: shippingAddress,
+                items: [itemToOrder],
+                total: total,
+                paymentMethod: paymentMethod,
+            };
+            
+            // Show QR code overlay above all cards
+            if (onShowQrCode) {
+                onShowQrCode(orderData);
+            } else {
+                // Fallback to showing QR code inside modal
+                setIsShowingQrCode(true);
+            }
         } else {
             finalizeOrder();
         }
     };
     
-    if (isShowingQrCode) {
+    // Show QR code inside modal only if onShowQrCode callback is not provided (fallback)
+    if (isShowingQrCode && !onShowQrCode) {
         const upiQrUrl = "https://ibb.co/wND1h7NM";
         
         return (

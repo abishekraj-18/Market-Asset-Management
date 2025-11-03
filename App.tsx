@@ -34,6 +34,8 @@ function App() {
   const [currentView, setCurrentView] = useState<'store' | 'ownerLogin' | 'ownerDashboard'>('store');
 
   const [toastMessage, setToastMessage] = useState<string>('');
+  const [showQrCode, setShowQrCode] = useState(false);
+  const [pendingOrderData, setPendingOrderData] = useState<Omit<Order, 'id' | 'orderDate' | 'status'> | null>(null);
 
   const handleShareProduct = (product: Product) => {
       const productUrl = `${window.location.origin}?product=${product.id}`;
@@ -168,6 +170,8 @@ function App() {
     setIsViewingMyOrders(false);
     setIsCartOpen(false);
     setIsWishlistOpen(false);
+    setShowQrCode(false);
+    setPendingOrderData(null);
   };
 
   const cartItemCount = cart.reduce((total, item) => total + item.quantity, 0);
@@ -223,6 +227,67 @@ function App() {
               onWishlistClick={() => setIsWishlistOpen(true)}
               onMenuClick={() => setIsSidebarOpen(true)}
             />
+
+            {/* QR Code Overlay - Appears above all cards */}
+            {showQrCode && pendingOrderData && (
+              <div 
+                className="fixed inset-0 bg-black bg-opacity-60 z-[60] flex items-start justify-center pt-8 pb-8 overflow-y-auto"
+                onClick={() => {
+                  setShowQrCode(false);
+                  setPendingOrderData(null);
+                }}
+              >
+                <div 
+                  className="bg-white rounded-lg shadow-2xl p-8 max-w-md w-full mx-4 mt-8 mb-8 relative"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <button
+                    onClick={() => {
+                      setShowQrCode(false);
+                      setPendingOrderData(null);
+                      // Keep checkout modal open
+                    }}
+                    className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl font-bold leading-none"
+                    aria-label="Close QR Code"
+                  >
+                    ×
+                  </button>
+                  <div className="text-center">
+                    <h3 className="text-2xl font-bold text-gray-800 mb-2">Scan to Pay</h3>
+                    <p className="text-sm text-gray-600 mb-4">Scan the QR code below with your PhonePe app</p>
+                    <div className="flex justify-center mb-6">
+                      <img 
+                        src="/qrpayaluga.jpg" 
+                        alt="PhonePe QR Code" 
+                        className="rounded-lg shadow-md border-2 border-gray-200 max-w-xs w-full h-auto"
+                      />
+                    </div>
+                    <p className="text-xl font-bold text-sky-600 mb-6">Total: ₹{pendingOrderData.total.toFixed(2)}</p>
+                    <button
+                      onClick={() => {
+                        handlePlaceOrder(pendingOrderData);
+                        setShowQrCode(false);
+                        setPendingOrderData(null);
+                        setSelectedProductForCheckout(null);
+                      }}
+                      className="w-full bg-sky-600 text-white font-semibold py-3 px-4 rounded-md shadow-sm hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-colors"
+                    >
+                      Complete Order
+                    </button>
+                  <button
+                    onClick={() => {
+                      setShowQrCode(false);
+                      setPendingOrderData(null);
+                      // Keep checkout modal open so user can change payment method
+                    }}
+                    className="w-full mt-3 bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-md hover:bg-gray-300 transition-colors"
+                  >
+                    Back to Checkout
+                  </button>
+                  </div>
+                </div>
+              </div>
+            )}
 
              {/* Off-canvas Sidebar */}
             {isSidebarOpen && (
@@ -330,7 +395,17 @@ function App() {
       
       {/* Checkout Modal */}
       <Modal isOpen={!!selectedProductForCheckout} onClose={closeModal} title={`Checkout: ${selectedProductForCheckout?.name || ''}`}>
-        {selectedProductForCheckout && <CheckoutForm product={selectedProductForCheckout} onClose={closeModal} onPlaceOrder={handlePlaceOrder} />}
+        {selectedProductForCheckout && (
+          <CheckoutForm 
+            product={selectedProductForCheckout} 
+            onClose={closeModal} 
+            onPlaceOrder={handlePlaceOrder}
+            onShowQrCode={(orderData) => {
+              setPendingOrderData(orderData);
+              setShowQrCode(true);
+            }}
+          />
+        )}
       </Modal>
 
       {/* My Orders Modal */}
